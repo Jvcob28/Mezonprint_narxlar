@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mezon Print — buyurtmalar kalkulyatori</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <strong>MEZON PRINT</strong>
+          <span>Demo POS</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-view="calculator">＋ Yangi buyurtma</button>
+        <button class="nav-btn" data-view="orders">▦ Buyurtmalar</button>
+        <button class="nav-btn" data-view="clients">♙ Mijozlar</button>
+        <button class="nav-btn" data-view="settings">⚙ Sozlamalar</button>
+      </nav>
+
+      <div class="sidebar-note">
+        <strong>Sinov versiyasi</strong>
+        <span>Server va PostgreSQLsiz. Buyurtmalar va cheklar ushbu brauzerning localStorage xotirasida saqlanadi.</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Yangi buyurtma</h1>
+          <p id="pageSubtitle">Poligrafiya narxini tez hisoblash</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-dot"></span>
+          <span id="clock"></span>
+          <button class="ghost-btn" id="newOrderTop">Yangi buyurtma</button>
+        </div>
+      </header>
+
+      <!-- CALCULATOR -->
+      <section class="view active" id="view-calculator">
+        <div class="workspace">
+          <div class="calculator-panel">
+            <div class="card">
+              <div class="section-head">
+                <div>
+                  <h2>Pozitsiyani hisoblash</h2>
+                  <p>Parametrlarni tanlang — narx avtomatik qayta hisoblanadi.</p>
+                </div>
+                <span class="pill" id="tierBadge">Tarif</span>
+              </div>
+
+              <div class="field-grid">
+                <div class="field span-2">
+                  <label>Chop etish turi</label>
+                  <div class="segmented" id="printTypeGroup">
+                    <button class="seg-btn active" data-value="color">Rangli</button>
+                    <button class="seg-btn" data-value="bw">Oq-qora</button>
+                  </div>
+                </div>
+
+                <div class="field span-2">
+                  <label>Format</label>
+                  <div class="format-grid" id="formatGroup"></div>
+                </div>
+
+                <div class="field">
+                  <label for="quantity">Miqdor</label>
+                  <div class="qty-control">
+                    <button id="qtyMinus" aria-label="Kamaytirish">−</button>
+                    <input id="quantity" type="number" min="1" value="100" />
+                    <button id="qtyPlus" aria-label="Ko‘paytirish">＋</button>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="paperWeight">Qog‘oz zichligi</label>
+                  <select id="paperWeight">
+                    <option>80 g/m²</option>
+                    <option>100 g/m²</option>
+                    <option>120 g/m²</option>
+                    <option>150 g/m²</option>
+                    <option>200 g/m²</option>
+                    <option>250 g/m²</option>
+                    <option>300 g/m²</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="priceMode">Oraliqdagi narx</label>
+                  <select id="priceMode">
+                    <option value="standard">Standart</option>
+                    <option value="min">Minimal</option>
+                    <option value="max">Maksimal</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="customUnitPrice">Bir dona uchun qo‘lda narx</label>
+                  <input id="customUnitPrice" type="number" min="0" placeholder="Bo‘sh qoldiring" />
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h3>Qo‘shimcha xizmatlar</h3>
+              <div class="addons-grid">
+                <label class="addon-card">
+                  <input type="checkbox" id="duplex" />
+                  <span class="checkmark"></span>
+                  <span><strong>Ikki tomonlama</strong><small id="duplexLabel">+80%</small></span>
+                </label>
+                <label class="addon-card">
+                  <input type="checkbox" id="denseFill" />
+                  <span class="checkmark"></span>
+                  <span><strong>To‘liq rangli qoplama</strong><small id="denseLabel">+40%</small></span>
+                </label>
+                <label class="addon-card">
+                  <input type="checkbox" id="rush" />
+                  <span class="checkmark"></span>
+                  <span><strong>Bugun shoshilinch</strong><small id="rushLabel">+25%</small></span>
+                </label>
+                <label class="addon-card">
+                  <input type="checkbox" id="cutting" />
+                  <span class="checkmark"></span>
+                  <span><strong>Kesish</strong><small id="cuttingLabel">450 so‘m/varaq</small></span>
+                </label>
+                <label class="addon-card">
+                  <input type="checkbox" id="creasing" />
+                  <span class="checkmark"></span>
+                  <span><strong>Bigovka</strong><small id="creasingLabel">450 so‘m/chiziq</small></span>
+                </label>
+                <label class="addon-card">
+                  <input type="checkbox" id="lamination" />
+                  <span class="checkmark"></span>
+                  <span><strong>Laminatsiya</strong><small id="laminationLabel">format bo‘yicha</small></span>
+                </label>
+                <label class="addon-card">
+                  <input type="checkbox" id="colorMatch" />
+                  <span class="checkmark"></span>
+                  <span><strong>Rang tanlash</strong><small id="colorMatchLabel">18 000 so‘m</small></span>
+                </label>
+              </div>
+
+              <div class="preview-box">
+                <div>
+                  <span>Asosiy narx</span>
+                  <strong id="previewBase">0 so‘m</strong>
+                </div>
+                <div>
+                  <span>Qo‘shimcha xizmatlar</span>
+                  <strong id="previewAddons">0 so‘m</strong>
+                </div>
+                <div class="preview-total">
+                  <span>Pozitsiya</span>
+                  <strong id="previewTotal">0 so‘m</strong>
+                </div>
+              </div>
+
+              <button class="primary-btn wide" id="addItem">Buyurtmaga qo‘shish</button>
+            </div>
+
+            <div class="card customer-card">
+              <div class="section-head">
+                <div>
+                  <h2>Mijoz va to‘lov</h2>
+                  <p>Bu ma’lumotlar buyurtma va uning cheki bilan birga saqlanadi.</p>
+                </div>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="customerName">Ism / kompaniya</label>
+                  <input id="customerName" placeholder="Masalan: Aziz" />
+                </div>
+                <div class="field">
+                  <label for="customerPhone">Telefon</label>
+                  <input id="customerPhone" placeholder="+998 90 123 45 67" />
+                </div>
+                <div class="field">
+                  <label for="paymentMethod">To‘lov usuli</label>
+                  <select id="paymentMethod">
+                    <option value="cash">Naqd</option>
+                    <option value="card">Karta / terminal</option>
+                    <option value="transfer">O‘tkazma</option>
+                    <option value="click">Click</option>
+                    <option value="payme">Payme</option>
+                    <option value="bank">Bank orqali to‘lov</option>
+                    <option value="mixed">Aralash</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="paymentComment">To‘lov izohi</label>
+                  <input id="paymentComment" placeholder="Masalan: 500 000 naqd + karta" />
+                </div>
+                <div class="field span-2">
+                  <label for="orderNote">Buyurtma izohi</label>
+                  <textarea id="orderNote" rows="2" placeholder="Muddat, material, mijoz istaklari..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="receipt-panel">
+            <div class="receipt-card">
+              <div class="receipt-top">
+                <div>
+                  <span class="eyebrow">Joriy buyurtma</span>
+                  <h2 id="draftOrderNo">Qoralama</h2>
+                </div>
+                <button class="icon-btn" id="clearOrder" title="Tozalash">×</button>
+              </div>
+
+              <div class="receipt-meta">
+                <span id="receiptDate">—</span>
+                <span id="receiptCustomer">Mijozsiz</span>
+              </div>
+
+              <div id="receiptItems" class="receipt-items">
+                <div class="empty-state">
+                  <div class="empty-icon">▤</div>
+                  <strong>Buyurtma hozircha bo‘sh</strong>
+                  <span>Chap tomondan birinchi pozitsiyani qo‘shing.</span>
+                </div>
+              </div>
+
+              <div class="adjustments">
+                <div class="adjust-row">
+                  <label for="discountType">Chegirma</label>
+                  <select id="discountType">
+                    <option value="none">Yo‘q</option>
+                    <option value="percent">%</option>
+                    <option value="fixed">So‘m</option>
+                  </select>
+                  <input id="discountValue" type="number" min="0" value="0" />
+                </div>
+                <div class="adjust-row">
+                  <label for="paidAmount">To‘langan</label>
+                  <span></span>
+                  <input id="paidAmount" type="number" min="0" value="0" />
+                </div>
+              </div>
+
+              <div class="receipt-summary">
+                <div><span>Oraliq jami</span><strong id="subtotal">0 so‘m</strong></div>
+                <div><span>Chegirma</span><strong id="discountAmount">0 so‘m</strong></div>
+                <div class="grand-total"><span>JAMI</span><strong id="grandTotal">0 so‘m</strong></div>
+                <div><span>To‘langan</span><strong id="paidTotal">0 so‘m</strong></div>
+                <div><span>Qoldiq</span><strong id="balance">0 so‘m</strong></div>
+              </div>
+
+              <details class="internal-box" open>
+                <summary>Ichki iqtisod</summary>
+                <div class="internal-rows">
+                  <div><span>Aylanma</span><strong id="internalRevenue">0</strong></div>
+                  <div><span id="payrollText">Xodimlar</span><strong id="internalPayroll">0</strong></div>
+                  <div><span id="utilitiesText">Kommunal xarajatlar</span><strong id="internalUtilities">0</strong></div>
+                  <div><span id="otherText">Boshqa xarajatlar</span><strong id="internalOther">0</strong></div>
+                  <div class="profit"><span>Hisoblangan foyda</span><strong id="internalProfit">0</strong></div>
+                  <div><span>Marja</span><strong id="internalMargin">0%</strong></div>
+                </div>
+                <small>Faqat xodimlar uchun. Mijoz chekida ko‘rsatilmaydi.</small>
+              </details>
+
+              <div id="barcodeWrap" class="barcode-wrap hidden">
+                <svg id="barcode" aria-label="Buyurtma shtrix-kodi"></svg>
+                <span id="barcodeText"></span>
+              </div>
+
+              <div class="receipt-actions">
+                <button class="secondary-btn" id="printOrder">Chekni chop etish</button>
+                <button class="primary-btn" id="saveOrder">Buyurtmani saqlash</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section class="view" id="view-orders">
+        <div class="card">
+          <div class="section-head">
+            <div>
+              <h2>Buyurtmalar va cheklar tarixi</h2>
+              <p>Har bir saqlangan buyurtma o‘zining o‘zgarmas chek nusxasini saqlaydi.</p>
+            </div>
+            <input id="orderSearch" class="search-input" placeholder="№, mijoz yoki telefon bo‘yicha qidirish..." />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Buyurtma №</th>
+                  <th>Sana</th>
+                  <th>Mijoz</th>
+                  <th>Pozitsiyalar</th>
+                  <th>Jami</th>
+                  <th>To‘langan</th>
+                  <th>Qoldiq</th>
+                  <th>To‘lov</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLIENTS -->
+      <section class="view" id="view-clients">
+        <div class="card">
+          <div class="section-head">
+            <div>
+              <h2>Mijozlar</h2>
+              <p>Saqlangan buyurtmalardan avtomatik shakllanadi.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mijoz</th>
+                  <th>Telefon</th>
+                  <th>Buyurtmalar soni</th>
+                  <th>Aylanma</th>
+                  <th>Qarz</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="view" id="view-settings">
+        <div class="settings-layout">
+          <div class="card">
+            <div class="section-head">
+              <div>
+                <h2>Ichki foizlar</h2>
+                <p>Bu qiymatlar faqat ichki tahlilga ta’sir qiladi.</p>
+              </div>
+            </div>
+            <div class="settings-form">
+              <label>Xodimlar, %
+                <input id="settingPayroll" type="number" min="0" max="100" />
+              </label>
+              <label>Kommunal xarajatlar, %
+                <input id="settingUtilities" type="number" min="0" max="100" />
+              </label>
+              <label>Boshqa xarajatlar, %
+                <input id="settingOther" type="number" min="0" max="100" />
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <div>
+                <h2>Ustamalar va xizmatlar</h2>
+                <p>Sinov versiyasining soddalashtirilgan sozlamalari.</p>
+              </div>
+            </div>
+            <div class="settings-form two-col">
+              <label>Ikki tomonlama, %
+                <input id="settingDuplex" type="number" min="0" />
+              </label>
+              <label>To‘liq rangli qoplama, %
+                <input id="settingDense" type="number" min="0" />
+              </label>
+              <label>Shoshilinchlik, %
+                <input id="settingRush" type="number" min="0" />
+              </label>
+              <label>Kesish, so‘m/varaq
+                <input id="settingCutting" type="number" min="0" />
+              </label>
+              <label>Bigovka, so‘m/chiziq
+                <input id="settingCreasing" type="number" min="0" />
+              </label>
+              <label>Rang tanlash, so‘m
+                <input id="settingColorMatch" type="number" min="0" />
+              </label>
+              <label>Laminatsiya A4, so‘m
+                <input id="settingLamA4" type="number" min="0" />
+              </label>
+              <label>Laminatsiya A3, so‘m
+                <input id="settingLamA3" type="number" min="0" />
+              </label>
+            </div>
+            <div class="settings-actions">
+              <button class="secondary-btn" id="resetSettings">Qayta o‘rnatish</button>
+              <button class="primary-btn" id="saveSettings">Sozlamalarni saqlash</button>
+            </div>
+          </div>
+
+          <div class="card warning-card">
+            <h3>Sinov versiyasi haqida muhim</h3>
+            <p>Hozir server, avtorizatsiya va haqiqiy ma’lumotlar bazasi yo‘q. Buyurtmalar va cheklar localStorage’da saqlanadi. Ishchi versiyada ularni PostgreSQL’ga ko‘chirish va rasmiylashtirish paytidagi chek snapshotini saqlash kerak.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-backdrop hidden" id="orderModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="modalTitle">Buyurtma</h2>
+        <button class="icon-btn" id="closeModal">×</button>
+      </div>
+      <div id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
